@@ -1,6 +1,6 @@
 <script lang="ts">
 import { type Job } from '../../types/Jobs'
-import { defineComponent, ref } from 'vue'
+import { defineComponent, onMounted, ref } from 'vue'
 import JobsList from '../../components/JobsList/JobsList.vue'
 import Post from '../../services/JobsService'
 import type { OrderJobsBy } from '../../types/OrderJobsBy'
@@ -13,8 +13,19 @@ export default defineComponent({
   setup() {
     const jobs = ref<Job[]>([])
 
-    Post.getAll().then((response) => {
-      jobs.value = response.data
+    const fetchJobs = async () => {
+      try {
+        const response = await Post.getAll().then((response) => {
+          return response.data
+        })
+
+        jobs.value = response
+      } catch (error) {
+        console.log('fetchJobs:', error)
+      }
+    }
+    onMounted(() => {
+      fetchJobs()
     })
 
     const orderJobsBy = ref<OrderJobsBy>('')
